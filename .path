@@ -1,12 +1,4 @@
-PATH="/bin:$PATH"
-PATH="/usr/bin:$PATH"
-PATH="/usr/local/bin:$PATH"
-PATH="/usr/sbin:$PATH"
-PATH="/sbin:$PATH"
-PATH="$HOME/bin:$PATH"
-PATH="$HOME/bin:$PATH"
-PATH="$HOME/.npm-global/bin:$PATH"
 PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
-PATH="/opt/homebrew/bin:$PATH"
+PATH="$HOME/.local/bin:$PATH"
 
 export PATH

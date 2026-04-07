@@ -1,8 +1,28 @@
+# git easy checkout main and pull
+gitm() {
+  git show-ref --verify --quiet refs/heads/main && git checkout main &&
+  git pull
+}
+
 # git easy rebase
 gitr() {
   [ -z "$1" ] && echo "No commit distance from HEAD provided" && return
-  git add -A && git commit -m "gitr: set rebase command 'f' to fixup"
+  git add -A && git commit --no-verify -m "gitr: set rebase command 'f' to fixup"
   git rebase -i HEAD~$1
+}
+
+# git easy rebase against branch
+gitrb() {
+  BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  git checkout $1 &&
+  git pull origin $1 &&
+  git checkout $BRANCH &&
+  git rebase $1
+}
+
+# git easy add all and commit
+gitc() {
+  git add -A && git commit --no-verify -m "$@"
 }
 
 # git easy push
@@ -15,49 +35,15 @@ gitv() {
   git push origin $(git rev-parse --abbrev-ref HEAD) --no-verify "$@"
 }
 
-# git easy fetch and replace
+# git easy fetch and hard replace
 gitf() {
-  if [[ $(git rev-parse --is-inside-work-tree) == true ]]; then
-    read -p "Are you sure you want to fetch and reset branch $(git rev-parse --abbrev-ref HEAD)? (Y/n) " -n 1
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    vared -p "Are you sure you want to fetch and reset branch $(git rev-parse --abbrev-ref HEAD)? (Y/n) " -c REPLY
+
+    if [[ "$REPLY" == [Yy] ]]; then
       git fetch origin && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
     fi
+
+    unset REPLY
   fi
-}
-
-# git easy rebase against branch
-gitrb() {
-  BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  git checkout $1 &&
-  git pull origin $1 &&
-  git checkout $BRANCH &&
-  git rebase $1
-}
-
-# git easy checkout master and pull
-gitm() {
-  git checkout master &&
-  git pull
-}
-
-# git easy checkout develop and pull
-gitd() {
-  git checkout develop &&
-  git pull origin develop
-}
-
-# git easy add all and commit
-gitc() {
-  npm run lint:fix && git add -A && git commit --no-verify -m "$@"
-}
-
-# full test snapshot replace, typescript validation, lint, commit, and push
-gitpc() {
-  npm run lint:fix && npm run ts-check && npm run test -- -u && git add -A && git commit --no-verify -m "$@" && gitv
-}
-
-# authored lines of code -- ignores generated snapshot files
-gitLOC() {
-  git ls-files | grep -Ev '^(.+).snap' | while read f; do git blame --line-porcelain $f | grep '^author '; done | sort -f | uniq -ic | sort -n
 }
